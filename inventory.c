@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-
-#define MAX 100
-#define MARGIN "  "
+#define MAX 50
+#define MARGIN "                                              "
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -33,7 +33,7 @@ int nextId = 1001;
 
 void addProduct();
 void viewAllProducts();
-void searchProduct();
+void searchProducts();
 void updateProduct();
 void removeProduct();
 void saveToFile();
@@ -49,13 +49,14 @@ int main() {
     int choice;
     loadFromFile();
 
-    const char *title = "Inventory Management System";
+    const char *title = "Welcome again to you Inventory";
+    int totalWidth = 75;
     int titleLen = strlen(title);
-    int totalWidth = 80;
-    int pad = (totalWidth - titleLen) / 2;
+    int pad = (totalWidth - titleLen) / 2 + 10;
 
-    printf("\n%*s" ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET "\n", pad, "", title);
-    printf("%*s", pad, "");
+    printf("\n\n");
+    printf("%*s" ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET "\n", pad + titleLen, "", title);
+    printf("%*s", pad + titleLen, "");
     for(int i = 0; i < titleLen; i++) printf("-");
     printf("\n\n");
 
@@ -74,7 +75,7 @@ int main() {
 
         switch(choice) {
             case 1:
-                searchProduct();
+                searchProducts();
                 break;
             case 2:
                 viewAllProducts();
@@ -142,7 +143,7 @@ void addProduct() {
 
 void viewAllProducts() {
     if(count == 0) {
-        printf(MARGIN "Inventory is empty!\n");
+        printf(MARGIN ANSI_COLOR_RED "Inventory is empty!\n" ANSI_COLOR_RESET);
         return;
     }
 
@@ -158,167 +159,3 @@ void viewAllProducts() {
                inventory[i].price);
     }
 }
-
-void searchProduct() {
-    int method, idx = -1;
-    printf(MARGIN "Select search by:\n");
-    printf(MARGIN "  1. Name\n");
-    printf(MARGIN "  2. ID\n");
-    printf(MARGIN "Enter choice: ");
-    scanf("%d", &method);
-    clearInputBuffer();
-
-    if(method == 1) {
-        char searchName[50];
-        printf(MARGIN "Enter Product Name: ");
-        fgets(searchName, sizeof(searchName), stdin);
-        searchName[strcspn(searchName, "\n")] = 0;
-        for(int i = 0; i < count; i++) {
-            if(strcmp(inventory[i].name, searchName) == 0) {
-                idx = i;
-                break;
-            }
-        }
-    } else if(method == 2) {
-        int searchId;
-        printf(MARGIN "Enter Product ID: ");
-        scanf("%d", &searchId);
-        clearInputBuffer();
-        idx = findProductById(searchId);
-    } else {
-        printf(MARGIN ANSI_COLOR_RED "Invalid selection!\n" ANSI_COLOR_RESET);
-        return;
-    }
-
-    if(idx != -1) {
-        printf(MARGIN "\nProduct Found:\n");
-        printf(MARGIN "ID: %03d\n" MARGIN "Name: %s\n" MARGIN "Quantity: %d\n" MARGIN "Price: LKR %.2f\n",
-               inventory[idx].id, inventory[idx].name,
-               inventory[idx].quantity, inventory[idx].price);
-    } else {
-        printf(MARGIN ANSI_COLOR_LIGHT_RED "Product not found!\n" ANSI_COLOR_RESET);
-    }
-}
-
-int findProductById(int id) {
-    for(int i = 0; i < count; i++) {
-        if(inventory[i].id == id) return i;
-    }
-    return -1;
-}
-
-void updateProduct() {
-    int method, idx = -1;
-    printf(MARGIN "Select product by:\n");
-    printf(MARGIN "  1. Name\n");
-    printf(MARGIN "  2. ID\n");
-    printf(MARGIN "Enter choice: ");
-    scanf("%d", &method);
-    clearInputBuffer();
-
-    if(method == 1) {
-        char updateName[50];
-        printf(MARGIN "Enter Product Name to update: ");
-        fgets(updateName, sizeof(updateName), stdin);
-        updateName[strcspn(updateName, "\n")] = 0;
-        for(int i = 0; i < count; i++) {
-            if(strcmp(inventory[i].name, updateName) == 0) {
-                idx = i;
-                break;
-            }
-        }
-    } else if(method == 2) {
-        int updateId;
-        printf(MARGIN "Enter Product ID to update: ");
-        scanf("%d", &updateId);
-        clearInputBuffer();
-        idx = findProductById(updateId);
-    } else {
-        printf(MARGIN ANSI_COLOR_RED "Invalid selection!\n" ANSI_COLOR_RESET);
-        return;
-    }
-
-    if(idx != -1) {
-        printf(MARGIN "Product ID: %03d\n", inventory[idx].id);
-        printf(MARGIN "Name: %s\n", inventory[idx].name);
-        printf(MARGIN "Current Quantity: %d\n", inventory[idx].quantity);
-        printf(MARGIN "Enter new Quantity: ");
-        scanf("%d", &inventory[idx].quantity);
-        clearInputBuffer();
-
-        printf(MARGIN "Current Price: LKR %.2f\n", inventory[idx].price);
-        printf(MARGIN "Enter new Price: ");
-        scanf("%f", &inventory[idx].price);
-        clearInputBuffer();
-
-        printf(MARGIN ANSI_COLOR_LIGHT_GREEN "Product updated successfully! (ID: %03d)\n" ANSI_COLOR_RESET, inventory[idx].id);
-    } else {
-        printf(MARGIN ANSI_COLOR_LIGHT_RED "Product not found!\n" ANSI_COLOR_RESET);
-    }
-}
-
-void removeProduct() {
-    int method, idx = -1;
-    printf(MARGIN "Select product by:\n");
-    printf(MARGIN "  1. Name\n");
-    printf(MARGIN "  2. ID\n");
-    printf(MARGIN "Enter choice: ");
-    scanf("%d", &method);
-    clearInputBuffer();
-
-    if(method == 1) {
-        char removeName[50];
-        printf(MARGIN "Enter Product Name to remove: ");
-        fgets(removeName, sizeof(removeName), stdin);
-        removeName[strcspn(removeName, "\n")] = 0;
-        for(int i = 0; i < count; i++) {
-            if(strcmp(inventory[i].name, removeName) == 0) {
-                idx = i;
-                break;
-            }
-        }
-    } else if(method == 2) {
-        int removeId;
-        printf(MARGIN "Enter Product ID to remove: ");
-        scanf("%d", &removeId);
-        clearInputBuffer();
-        idx = findProductById(removeId);
-    } else {
-        printf(MARGIN ANSI_COLOR_RED "Invalid selection!\n" ANSI_COLOR_RESET);
-        return;
-    }
-
-    if(idx != -1) {
-        int removedId = inventory[idx].id;
-        char removedName[50];
-        strcpy(removedName, inventory[idx].name);
-        for(int j = idx; j < count - 1; j++) {
-            inventory[j] = inventory[j+1];
-        }
-        count--;
-        printf(MARGIN ANSI_COLOR_LIGHT_GREEN "Product '%s' (ID: %03d) removed successfully!\n" ANSI_COLOR_RESET, removedName, removedId);
-        printf(MARGIN "\n");
-    } else {
-        printf(MARGIN ANSI_COLOR_LIGHT_RED "Product not found!\n" ANSI_COLOR_RESET);
-    }
-}
-
-void saveToFile() {
-    FILE *fp = fopen("inventory.dat", "w");
-    if(fp == NULL) {
-        printf(MARGIN "Error saving file!\n");
-        return;
-    }
-
-    fprintf(fp, "%d\n", nextId);
-
-    for(int i = 0; i < count; i++) {
-        fprintf(fp, "%d %s %d %.2f\n",
-                inventory[i].id,
-                inventory[i].name,
-                inventory[i].quantity,
-                inventory[i].price);
-    }
-    fclose(fp);
-}
-
