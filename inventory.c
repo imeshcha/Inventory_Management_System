@@ -322,33 +322,3 @@ void saveToFile() {
     fclose(fp);
 }
 
-void loadFromFile() {
-    FILE *fp = fopen("inventory.dat", "r");
-    if(fp == NULL) return;
-
-    if(fscanf(fp, "%d\n", &nextId) != 1) {
-        nextId = 1001;
-    }
-
-    while(fscanf(fp, "%d %49s %d %f",
-                    &inventory[count].id,
-                    inventory[count].name,
-                    &inventory[count].quantity,
-                    &inventory[count].price) == 4) {
-        count++;
-        if(count >= MAX) break;
-    }
-    fclose(fp);
-
-    int max_id_on_load = 0;
-    for(int i = 0; i < count; i++) {
-        if (inventory[i].id > max_id_on_load) {
-            max_id_on_load = inventory[i].id;
-        }
-    }
-    if (max_id_on_load >= 1000) {
-        nextId = max_id_on_load + 1;
-    } else {
-        nextId = 1001;
-    }
-}
